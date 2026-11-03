@@ -103,37 +103,79 @@
       appId: "1:736205745651:web:bf8aaa4c3f8bd4cd8db686"
     };
 
-    firebase.initializeApp(firebaseConfig);
+  // GASのウェブアプリURL
+  const GAS_WEB_APP_URL = "ここにGASのURLを貼る";
 
-    const auth = firebase.auth();
-    const provider = new firebase.auth.GoogleAuthProvider();
+  firebase.initializeApp(firebaseConfig);
 
-const loginButton = document.getElementById("loginButton");
-const status = document.getElementById("status");
+  const auth = firebase.auth();
+  const provider = new firebase.auth.GoogleAuthProvider();
 
-auth.onAuthStateChanged((user) => {
-  if (user) {
-    status.textContent = "ログイン中：" + user.email;
-    loginButton.textContent = "ログアウト";
-  } else {
-    status.textContent = "ログインしてください。";
-    loginButton.textContent = "Googleでログイン";
-  }
-});
+  const loginButton = document.getElementById("loginButton");
+  const status = document.getElementById("status");
 
-loginButton.addEventListener("click", async () => {
-  try {
-    if (auth.currentUser) {
-      await auth.signOut();
-    } else {
-      status.textContent = "ログインしています...";
-      await auth.signInWithPopup(provider);
+  // GASにログイン情報を確認してもらう
+  async function checkLeadRole(user) {
+    try {
+      status.textContent = "LEADの利用者情報を確認しています...";
+
+      const idToken = await user.getIdToken();
+
+      const response = await fetch(GAS_WEB_APP_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "text/plain"
+        },
+        body: JSON.stringify({
+          idToken: idToken
+        })
+      });
+
+      const result = await response.json();
+
+      if (!result.success) {
+        status.textContent = "認証できませんでした：" + result.message;
+        return;
+      }
+
+      status.textContent =
+        "認証成功：" +
+        result.email +
+        "（役割：" +
+        result.role +
+        "）";
+
+    } catch (error) {
+      console.error("LEAD認証エラー：", error);
+      status.textContent = "GASとの通信に失敗しました。Consoleを確認してください。";
     }
-  } catch (error) {
-    console.error(error);
-    status.textContent = "ログインできませんでした。";
   }
-});
-  </script>
+
+  // ログイン状態の監視
+  auth.onAuthStateChanged((user) => {
+    if (user) {
+      loginButton.textContent = "ログアウト";
+      checkLeadRole(user);
+    } else {
+      status.textContent = "ログインしてください。";
+      loginButton.textContent = "Googleでログイン";
+    }
+  });
+
+  // ログイン・ログアウト
+  loginButton.addEventListener("click", async () => {
+    try {
+      if (auth.currentUser) {
+        await auth.signOut();
+      } else {
+        status.textContent = "ログインしています...";
+        await auth.signInWithPopup(provider);
+      }
+    } catch (error) {
+      console.error(error);
+      status.textContent = "ログインできませんでした。";
+    }
+  });
+</script>
 </body>
 </html>
