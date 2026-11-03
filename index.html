@@ -146,19 +146,33 @@
   // GASのウェブアプリURL
   const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzjTiZVHJP6MzuV_U8nTiCtc9FIfCYS8eUzwZw9-eW5DXkxkvZvZtsoAvUg3lF6PJNl/exec";
 
-  firebase.initializeApp(firebaseConfig);
+   firebase.initializeApp(firebaseConfig);
 
   const auth = firebase.auth();
   const provider = new firebase.auth.GoogleAuthProvider();
 
   const loginButton = document.getElementById("loginButton");
+  const logoutButton = document.getElementById("logoutButton");
   const status = document.getElementById("status");
+
+  const loginScreen = document.getElementById("loginScreen");
+  const husbandScreen = document.getElementById("husbandScreen");
+  const wifeScreen = document.getElementById("wifeScreen");
+
+  // すべての画面をいったん非表示にする
+  function hideAllScreens() {
+    loginScreen.hidden = true;
+    husbandScreen.hidden = true;
+    wifeScreen.hidden = true;
+  }
 
   // GASにログイン情報を確認してもらう
   async function checkLeadRole(user) {
-    try {
-      status.textContent = "LEADの利用者情報を確認しています...";
+    hideAllScreens();
+    status.textContent = "LEADの利用者情報を確認しています...";
+    logoutButton.hidden = true;
 
+    try {
       const idToken = await user.getIdToken();
 
       const response = await fetch(GAS_WEB_APP_URL, {
@@ -172,54 +186,66 @@
       });
 
       const responseText = await response.text();
-
-console.log("GAS HTTPステータス：", response.status);
-console.log("GAS Content-Type：", response.headers.get("content-type"));
-console.log("GASからの応答：", responseText.substring(0, 500));
-
-const result = JSON.parse(responseText);
+      const result = JSON.parse(responseText);
 
       if (!result.success) {
-        status.textContent = "認証できませんでした：" + result.message;
+        status.textContent =
+          "認証できませんでした：" + result.message;
+        return;
+      }
+
+      if (result.role === "husband") {
+        husbandScreen.hidden = false;
+      } else if (result.role === "wife") {
+        wifeScreen.hidden = false;
+      } else {
+        status.textContent = "利用できる役割が確認できません。";
         return;
       }
 
       status.textContent =
-        "認証成功：" +
-        result.email +
-        "（役割：" +
-        result.role +
-        "）";
+        "ログイン中：" + result.email;
+
+      logoutButton.hidden = false;
 
     } catch (error) {
       console.error("LEAD認証エラー：", error);
-      status.textContent = "GASとの通信に失敗しました。Consoleを確認してください。";
+      status.textContent =
+        "GASとの通信に失敗しました。Consoleを確認してください。";
     }
   }
 
-  // ログイン状態の監視
+  // ログイン状態を監視する
   auth.onAuthStateChanged((user) => {
+    hideAllScreens();
+
     if (user) {
-      loginButton.textContent = "ログアウト";
       checkLeadRole(user);
     } else {
+      loginScreen.hidden = false;
       status.textContent = "ログインしてください。";
-      loginButton.textContent = "Googleでログイン";
+      logoutButton.hidden = true;
     }
   });
 
-  // ログイン・ログアウト
+  // Googleログイン
   loginButton.addEventListener("click", async () => {
     try {
-      if (auth.currentUser) {
-        await auth.signOut();
-      } else {
-        status.textContent = "ログインしています...";
-        await auth.signInWithPopup(provider);
-      }
+      status.textContent = "ログインしています...";
+      await auth.signInWithPopup(provider);
     } catch (error) {
       console.error(error);
       status.textContent = "ログインできませんでした。";
+    }
+  });
+
+  // ログアウト
+  logoutButton.addEventListener("click", async () => {
+    try {
+      await auth.signOut();
+    } catch (error) {
+      console.error(error);
+      status.textContent = "ログアウトできませんでした。";
     }
   });
 </script>
