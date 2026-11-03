@@ -131,7 +131,13 @@
         })
       });
 
-      const result = await response.json();
+      const responseText = await response.text();
+
+console.log("GAS HTTPステータス：", response.status);
+console.log("GAS Content-Type：", response.headers.get("content-type"));
+console.log("GASからの応答：", responseText.substring(0, 500));
+
+const result = JSON.parse(responseText);
 
       if (!result.success) {
         status.textContent = "認証できませんでした：" + result.message;
