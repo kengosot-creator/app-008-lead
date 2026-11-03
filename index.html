@@ -194,10 +194,20 @@
         return;
       }
 
-      if (result.role === "husband") {
-        husbandScreen.hidden = false;
-      } else if (result.role === "wife") {
-        wifeScreen.hidden = false;
+      console.log("役割判定：", result.role);
+
+if (result.role === "husband") {
+  husbandScreen.hidden = false;
+  console.log("夫側ホームを表示しました");
+} else if (result.role === "wife") {
+  wifeScreen.hidden = false;
+  console.log("妻側ホームを表示しました");
+} else {
+  status.textContent = "利用できる役割が確認できません。";
+  return;
+}
+
+console.log("夫側ホームのhidden状態：", husbandScreen.hidden);
       } else {
         status.textContent = "利用できる役割が確認できません。";
         return;
