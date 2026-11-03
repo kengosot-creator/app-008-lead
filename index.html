@@ -74,22 +74,62 @@
 
 <body>
   <main class="container">
+
+    <!-- 共通ロゴ -->
     <div class="logo">LEAD</div>
 
-    <div class="tagline">
-      家族の幸せを、自分から。
-    </div>
+    <!-- ログイン前の画面 -->
+    <section id="loginScreen">
+      <div class="tagline">
+        家族の幸せを、自分から。
+      </div>
 
-    <div class="message">
-      結婚した日の決意を、<br>
-      今日の行動に変える。
-    </div>
+      <div class="message">
+        結婚した日の決意を、<br>
+        今日の行動に変える。
+      </div>
 
-    <button id="loginButton">
-      Googleでログイン
-    </button>
+      <button id="loginButton">
+        Googleでログイン
+      </button>
+    </section>
+
+    <!-- 夫側ホーム -->
+    <section id="husbandScreen" hidden>
+      <div class="tagline">
+        自分から、関係を変えていく。
+      </div>
+
+      <div class="message">
+        大切な人との関係を、<br>
+        今日から少しずつ。
+      </div>
+
+      <h2>夫側ホーム</h2>
+      <p>妻から届いたメッセージを確認できます。</p>
+    </section>
+
+    <!-- 妻側ホーム -->
+    <section id="wifeScreen" hidden>
+      <div class="tagline">
+        気持ちを、安心して伝えられる場所。
+      </div>
+
+      <div class="message">
+        あなたの気持ちを、<br>
+        大切に受け止めます。
+      </div>
+
+      <h2>妻側ホーム</h2>
+      <p>日々の気持ちや伝えたいことを投稿できます。</p>
+    </section>
 
     <p id="status">ログインしてください。</p>
+
+    <button id="logoutButton" hidden>
+      ログアウト
+    </button>
+
   </main>
 
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
