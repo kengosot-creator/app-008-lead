@@ -4,10 +4,139 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#f8f6f2">
-  <title>LEAD</title>
+  <title>LEAD | 家族の幸せを、自分から。</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #f8f6f2;
+      color: #303b4a;
+      font-family: sans-serif;
+      text-align: center;
+    }
+
+    .container {
+      width: min(90%, 420px);
+      padding: 40px 28px;
+    }
+
+    .logo {
+      font-size: 42px;
+      font-weight: 700;
+      letter-spacing: 5px;
+      color: #34445a;
+    }
+
+    .tagline {
+      margin-top: 16px;
+      font-size: 15px;
+      letter-spacing: 2px;
+    }
+
+    .message {
+      margin: 42px 0 28px;
+      color: #777;
+      line-height: 1.9;
+      font-size: 14px;
+    }
+
+    button {
+      width: 100%;
+      padding: 15px;
+      border: 1px solid #d8d5cf;
+      border-radius: 10px;
+      background: white;
+      color: #34445a;
+      font-size: 15px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #f0eee9;
+    }
+
+    #status {
+      margin-top: 20px;
+      font-size: 13px;
+      color: #777;
+      overflow-wrap: anywhere;
+    }
+  </style>
 </head>
+
 <body>
-  <h1>LEAD</h1>
-  <p>家族の幸せを、自分から。</p>
+  <main class="container">
+    <div class="logo">LEAD</div>
+
+    <div class="tagline">
+      家族の幸せを、自分から。
+    </div>
+
+    <div class="message">
+      結婚した日の決意を、<br>
+      今日の行動に変える。
+    </div>
+
+    <button id="loginButton">
+      Googleでログイン
+    </button>
+
+    <p id="status">ログインしてください。</p>
+  </main>
+
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBzPaF8PULQyDw5AjBDal5A_T73tmhlmH8",
+      authDomain: "lead-79e60.firebaseapp.com",
+      projectId: "lead-79e60",
+      appId: "1:736205745651:web:bf8aaa4c3f8bd4cd8db686"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+
+    const auth = firebase.auth();
+    const provider = new firebase.auth.GoogleAuthProvider();
+
+    const auth = firebase.auth();
+const provider = new firebase.auth.GoogleAuthProvider();
+
+const loginButton = document.getElementById("loginButton");
+const status = document.getElementById("status");
+
+auth.onAuthStateChanged((user) => {
+  if (user) {
+    status.textContent = "ログイン中：" + user.email;
+    loginButton.textContent = "ログアウト";
+  } else {
+    status.textContent = "ログインしてください。";
+    loginButton.textContent = "Googleでログイン";
+  }
+});
+
+loginButton.addEventListener("click", async () => {
+  try {
+    if (auth.currentUser) {
+      await auth.signOut();
+    } else {
+      status.textContent = "ログインしています...";
+      await auth.signInWithPopup(provider);
+    }
+  } catch (error) {
+    console.error(error);
+    status.textContent = "ログインできませんでした。";
+  }
+});
+  </script>
 </body>
 </html>
