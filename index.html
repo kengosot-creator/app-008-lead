@@ -171,6 +171,7 @@
     wifeScreen.hidden = true;
   }
 
+
   // GASにログイン情報を確認してもらう
   async function checkLeadRole(user) {
     hideAllScreens();
@@ -186,48 +187,127 @@
           "Content-Type": "text/plain"
         },
         body: JSON.stringify({
-          idToken: idToken
+          idToken: idToken,
+          action: "auth"
         })
       });
 
-      const responseText = await response.text();
-      const result = JSON.parse(responseText);
+      const result = await response.json();
 
       if (!result.success) {
-        status.textContent =
-          "認証できませんでした：" + result.message;
+        status.textContent = "認証できませんでした：" + result.message;
         return;
       }
 
-      console.log("役割判定：", result.role);
+      if (result.role === "husband") {
+        husbandScreen.hidden = false;
+        status.textContent = "ログイン中：" + result.email;
+        logoutButton.hidden = false;
 
-if (result.role === "husband") {
-  husbandScreen.hidden = false;
-  console.log("夫側ホームを表示しました");
-} else if (result.role === "wife") {
-  wifeScreen.hidden = false;
-  console.log("妻側ホームを表示しました");
-} else {
-  status.textContent = "利用できる役割が確認できません。";
-  return;
-}
+        await loadPosts(idToken);
 
-console.log("夫側ホームのhidden状態：", husbandScreen.hidden);
+      } else if (result.role === "wife") {
+        wifeScreen.hidden = false;
+        status.textContent = "ログイン中：" + result.email;
+        logoutButton.hidden = false;
+
       } else {
         status.textContent = "利用できる役割が確認できません。";
-        return;
       }
-
-      status.textContent =
-        "ログイン中：" + result.email;
-
-      logoutButton.hidden = false;
 
     } catch (error) {
       console.error("LEAD認証エラー：", error);
-      status.textContent =
-        "GASとの通信に失敗しました。Consoleを確認してください。";
+      status.textContent = "GASとの通信に失敗しました。Consoleを確認してください。";
     }
+  }
+
+  // GASから妻の投稿一覧を取得する
+  async function loadPosts(idToken) {
+    const postList = document.getElementById("postList");
+    postList.textContent = "投稿を読み込んでいます...";
+
+    try {
+      const response = await fetch(GAS_WEB_APP_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "text/plain"
+        },
+        body: JSON.stringify({
+          idToken: idToken,
+          action: "listPosts"
+        })
+      });
+
+      const result = await response.json();
+
+      if (!result.success) {
+        postList.textContent = "投稿を取得できませんでした：" + result.message;
+        return;
+      }
+
+      displayPosts(result.posts);
+
+    } catch (error) {
+      console.error("投稿取得エラー：", error);
+      postList.textContent = "投稿の読み込みに失敗しました。";
+    }
+  }
+
+  // 投稿一覧を画面に表示する
+  function displayPosts(posts) {
+    const postList = document.getElementById("postList");
+    postList.replaceChildren();
+
+    if (!posts || posts.length === 0) {
+      postList.textContent = "まだ投稿はありません。";
+      return;
+    }
+
+    posts.forEach(post => {
+      const card = document.createElement("div");
+
+      card.style.cssText =
+        "background:#fff;border:1px solid #e5e1da;" +
+        "border-radius:12px;padding:18px;margin:16px 0;text-align:left;";
+
+      const date = new Date(post.createdAt);
+      const dateText = isNaN(date.getTime())
+        ? ""
+        : date.toLocaleString("ja-JP");
+
+      const dateElement = document.createElement("p");
+      dateElement.textContent = dateText + "　" + (post.category || "");
+      card.appendChild(dateElement);
+
+      function addText(label, value) {
+        if (value === null || value === undefined || value === "") return;
+
+        const heading = document.createElement("h3");
+        heading.textContent = label;
+
+        const paragraph = document.createElement("p");
+        paragraph.textContent = String(value);
+        paragraph.style.whiteSpace = "pre-wrap";
+        paragraph.style.lineHeight = "1.7";
+
+        card.appendChild(heading);
+        card.appendChild(paragraph);
+      }
+
+      addText("何があった？", post.whatHappened);
+      addText("どう感じた？", post.howFelt);
+      addText("本当はどうしてほしかった？", post.whatWanted);
+      addText("自由に伝えたいこと", post.freeMessage);
+
+      const divider = document.createElement("hr");
+      card.appendChild(divider);
+
+      addText("STEP1｜妻の本当の願い", post.step1);
+      addText("STEP2｜すれ違いの構造", post.step2);
+      addText("STEP3｜夫自身の気づき", post.step3);
+
+      postList.appendChild(card);
+    });
   }
 
   // ログイン状態を監視する
@@ -263,6 +343,7 @@ console.log("夫側ホームのhidden状態：", husbandScreen.hidden);
       status.textContent = "ログアウトできませんでした。";
     }
   });
+
 </script>
 </body>
 </html>
