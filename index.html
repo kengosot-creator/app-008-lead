@@ -376,6 +376,96 @@
     }
   }
 
+  // =====================================
+// 妻側：投稿処理
+// =====================================
+
+const submitPostButton = document.getElementById("submitPostButton");
+
+submitPostButton.addEventListener("click", async function() {
+
+  // ログイン状態の確認
+  const user = auth.currentUser;
+
+  if (!user) {
+    alert("ログイン情報を確認できません。再度ログインしてください。");
+    return;
+  }
+
+  // 入力内容を取得
+  const wifePost = {
+    category: document.getElementById("category").value,
+    whatHappened: document.getElementById("whatHappened").value.trim(),
+    howFelt: document.getElementById("howFelt").value.trim(),
+    whatWanted: document.getElementById("whatWanted").value.trim(),
+    freeMessage: document.getElementById("freeMessage").value.trim()
+  };
+
+  // 入力チェック
+  const hasContent = [
+    wifePost.whatHappened,
+    wifePost.howFelt,
+    wifePost.whatWanted,
+    wifePost.freeMessage
+  ].some(value => value !== "");
+
+  if (!hasContent) {
+    alert("投稿内容を入力してください。");
+    return;
+  }
+
+  // 二重投稿防止
+  submitPostButton.disabled = true;
+  submitPostButton.textContent = "気持ちを届けています...";
+
+  try {
+
+    // Firebase IDトークンを取得
+    const idToken = await user.getIdToken();
+
+    // GASに投稿を送信
+    const response = await fetch(GAS_WEB_APP_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "text/plain"
+      },
+      body: JSON.stringify({
+        idToken: idToken,
+        action: "submitPost",
+        wifePost: wifePost
+      })
+    });
+
+    const result = await response.json();
+
+    if (!result.success) {
+      throw new Error(result.message || "投稿に失敗しました。");
+    }
+
+    // 投稿成功
+    alert("気持ちを届けました。");
+
+    // 入力欄をクリア
+    document.getElementById("category").value = "不満";
+    document.getElementById("whatHappened").value = "";
+    document.getElementById("howFelt").value = "";
+    document.getElementById("whatWanted").value = "";
+    document.getElementById("freeMessage").value = "";
+
+  } catch (error) {
+
+    console.error("投稿エラー：", error);
+    alert("投稿できませんでした。\n" + error.message);
+
+  } finally {
+
+    submitPostButton.disabled = false;
+    submitPostButton.textContent = "気持ちを届ける";
+
+  }
+
+});  
+
   // GASから妻の投稿一覧を取得する
   async function loadPosts(idToken) {
     const postList = document.getElementById("postList");
