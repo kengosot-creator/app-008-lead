@@ -69,6 +69,62 @@
       color: #777;
       overflow-wrap: anywhere;
     }
+
+    
+.wife-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 24px;
+  text-align: left;
+}
+
+.wife-form label {
+  font-size: 14px;
+  font-weight: bold;
+  color: #55504d;
+  margin-top: 10px;
+}
+
+.wife-form select,
+.wife-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #e5dcd5;
+  border-radius: 12px;
+  padding: 14px;
+  font-size: 15px;
+  font-family: inherit;
+  background: #fffdfb;
+  color: #45413e;
+}
+
+.wife-form textarea {
+  min-height: 90px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.wife-form select:focus,
+.wife-form textarea:focus {
+  outline: none;
+  border-color: #c98f91;
+  box-shadow: 0 0 0 3px rgba(201, 143, 145, 0.12);
+}
+
+#submitPostButton {
+  margin-top: 20px;
+  width: 100%;
+  border: none;
+  border-radius: 14px;
+  padding: 16px;
+  background: #c98f91;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
   </style>
 </head>
 
