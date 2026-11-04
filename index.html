@@ -115,19 +115,43 @@
     </section>
 
     <!-- 妻側ホーム -->
-    <section id="wifeScreen" hidden>
-      <div class="tagline">
-        気持ちを、安心して伝えられる場所。
-      </div>
+    
+<section id="wifeScreen" hidden>
+  <div class="tagline">気持ちを、安心して伝えられる場所。</div>
+  <div class="message">
+    あなたの気持ちを、<br>
+    大切に受け止めます。
+  </div>
 
-      <div class="message">
-        あなたの気持ちを、<br>
-        大切に受け止めます。
-      </div>
+  <h2>気持ちを伝える</h2>
+  <p>今感じていることを、無理のない範囲で教えてください。</p>
 
-      <h2>妻側ホーム</h2>
-      <p>日々の気持ちや伝えたいことを投稿できます。</p>
-    </section>
+  <div class="wife-form">
+
+    <label for="category">1. 伝えたいこと</label>
+    <select id="category">
+      <option value="不満">不満</option>
+      <option value="要望">要望</option>
+      <option value="感謝">感謝</option>
+    </select>
+
+    <label for="whatHappened">2. 何があった？</label>
+    <textarea id="whatHappened" placeholder="どんな出来事がありましたか？"></textarea>
+
+    <label for="howFelt">3. どう感じた？</label>
+    <textarea id="howFelt" placeholder="そのとき、どんな気持ちになりましたか？"></textarea>
+
+    <label for="whatWanted">4. 本当はどうしてほしかった？</label>
+    <textarea id="whatWanted" placeholder="本当はどうしてほしかったですか？"></textarea>
+
+    <label for="freeMessage">5. 自由に伝えたいこと（任意）</label>
+    <textarea id="freeMessage" placeholder="その他に伝えたいことがあれば自由に書いてください。"></textarea>
+
+    <button type="button" id="submitPostButton">気持ちを届ける</button>
+
+  </div>
+</section>
+
 
     <p id="status">ログインしてください。</p>
 
